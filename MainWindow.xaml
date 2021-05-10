@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyNotepad"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,16 +16,29 @@
     
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition  Height="Auto"/>
             <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions >
-            <ColumnDefinition />
+            <ColumnDefinition MinWidth="150" Width="150"/>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-
-        <ListView Grid.Row="0" Grid.Column="0" SelectionMode="Single">
+        
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="cAppMenu">
+            <MenuItem Header="File(_F)">
+                <MenuItem Header="New Workspace(_N)"/>
+                <MenuItem Header="Open Workspace(_O)"/>
+                <Separator />
+                <MenuItem Header="Exit(_X)"/>
+            </MenuItem>
+            <MenuItem Header="View(_V)">
+                <MenuItem IsCheckable="True" Header="Show SideBar" />
+            </MenuItem>
+        </Menu>
+        
+        <ListView Grid.Row="1" Grid.Column="0" SelectionMode="Single">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
@@ -58,7 +71,14 @@
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
-        <GridSplitter Grid.Column="1" Grid.Row="0" Width="5" HorizontalAlignment="Center" Grid.RowSpan="2"/>
-        <TextBox Grid.Row="0" Grid.Column="3" Grid.RowSpan="2" AcceptsReturn="True" FontFamily="Meiryo UI" TextBlock.LineHeight="20" />
+
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Style="{StaticResource LabelButton}" Content="+" />
+            <Button Style="{StaticResource LabelButton}" Content="-" />
+        </StackPanel>
+        
+        <GridSplitter Grid.Column="1" Grid.Row="1" Width="5" HorizontalAlignment="Center" Grid.RowSpan="2"/>
+
+        <TextBox Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" AcceptsReturn="True" FontFamily="Meiryo UI" TextBlock.LineHeight="20" />
     </Grid>
 </Window>
