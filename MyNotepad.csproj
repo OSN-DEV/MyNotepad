@@ -38,7 +38,17 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OsnCsLib.WPFComponent">
+    <Reference Include="OsnCsLib.Common">
+      <HintPath>Libs\OsnCsLib.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="OsnCsLib.Data">
+      <HintPath>Libs\OsnCsLib.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="OsnCsLib.File">
+      <HintPath>Libs\OsnCsLib.File.dll</HintPath>
+    </Reference>
+    <Reference Include="OsnCsLib.WPFComponent, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\OsnCsLib.WPFComponent.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -65,7 +75,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="MyNotepadWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -73,12 +83,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="AppCommon\Constants.cs" />
+    <Compile Include="Data\AppPreferenceRepo.cs" />
+    <Compile Include="MyNotepadViewModel.cs" />
+    <Compile Include="MyNotepadWindow.xaml.cs">
+      <DependentUpon>MyNotepadWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyNotepadWindowDesignData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
