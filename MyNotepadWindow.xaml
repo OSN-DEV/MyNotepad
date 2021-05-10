@@ -29,8 +29,8 @@
         
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="cAppMenu">
             <MenuItem Header="File(_F)">
-                <MenuItem Header="New Workspace(_N)" Command="{Binding NewWorkspaceCommand}"/>
-                <MenuItem Header="Open Workspace(_O)" Command="{Binding OpenWorkspaceCommand}"/>
+                <MenuItem Header="Select Workspace(_N)" Command="{Binding NewWorkspaceCommand}"/>
+                <!--<MenuItem Header="Open Workspace(_O)" Command="{Binding OpenWorkspaceCommand}"/>-->
                 <Separator />
                 <MenuItem Header="Exit(_X)" Command="{Binding AppExitCommand}"/>
             </MenuItem>
