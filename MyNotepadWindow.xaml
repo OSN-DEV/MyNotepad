@@ -38,8 +38,8 @@
                 <MenuItem IsCheckable="True" Header="SideBar" Command="{Binding ToggleSidebarCommand}" />
             </MenuItem>
         </Menu>
-        
-        <ListView Grid.Row="1" Grid.Column="0" SelectionMode="Single" ItemsSource="{Binding TextList}">
+
+        <ListView Grid.Row="1" Grid.Column="0" SelectionMode="Single" ItemsSource="{Binding TextList}" MouseDoubleClick="TextNameListMouseDoubleClick" SelectionChanged="TextNameListSelectionChanged" SelectedIndex="{Binding CurrentIndex}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
@@ -75,7 +75,7 @@
 
         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Style="{StaticResource LabelButton}" Content="+" Command="{Binding AddTextCommand}" />
-            <Button Style="{StaticResource LabelButton}" Content="-" Command="{Binding DeleteTextCommand}" />
+            <Button Style="{StaticResource LabelButton}" Content="-" Command="{Binding DeleteTextCommand}" IsEnabled="{Binding IsDeleteEnabled}"/>
         </StackPanel>
         
         <GridSplitter Grid.Column="1" Grid.Row="1" Width="5" HorizontalAlignment="Center" Grid.RowSpan="2"/>

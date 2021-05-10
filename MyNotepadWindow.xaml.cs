@@ -13,8 +13,19 @@ namespace MyNotepad {
         #region Constructor
         public MyNotepadWindow() {
             InitializeComponent();
-            // this._viewModel = new MyNotepadViewModel(this);
-            this.DataContext = new MyNotepadViewModel(this);
+            this._viewModel = new MyNotepadViewModel(this);
+            this.DataContext = this._viewModel;
+        }
+        #endregion
+
+
+        #region Event
+        private void TextNameListMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            this._viewModel.TextNameDoubleClick();
+        }
+
+        private void TextNameListSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            this._viewModel.SelectedTextNameChanged();
         }
         #endregion
     }

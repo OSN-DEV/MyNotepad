@@ -5,6 +5,7 @@ using OsnCsLib.Common;
 using OsnCsLib.File;
 using OsnCsLib.WPFComponent.Bind;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace MyNotepad {
     /// <summary>
@@ -18,6 +19,14 @@ namespace MyNotepad {
         #endregion
 
         #region Pubic Property
+        private int _currentIndex;
+        public int CurrentIndex {
+            set { base.SetProperty(ref this._currentIndex, value);
+                base.SetProperty(nameof(this.IsDeleteEnabled));
+            }
+            get { return this._currentIndex; }
+        }
+
         /// <summary>
         /// text
         /// </summary>
@@ -31,6 +40,13 @@ namespace MyNotepad {
         /// list of text
         /// </summary>
         public ObservableCollection<string> TextList { set; get; } = new ObservableCollection<string>();
+
+        /// <summary>
+        /// delete text enabled
+        /// </summary>
+        public bool IsDeleteEnabled {
+            get { return 0 <= this._currentIndex; }
+        }
         #endregion
 
         #region Command
@@ -139,7 +155,7 @@ namespace MyNotepad {
         /// [File] - [Exit]
         /// </summary>
         private void AppExitClick() {
-
+            this._window.Close();
         }
 
         /// <summary>
@@ -155,7 +171,21 @@ namespace MyNotepad {
         private void AddTextClick() {
             var dialog = new TextNameEditWindow(this._window);
             if (true == dialog.ShowDialog()) {
-
+                var dest = $@"{this._preference.Workspace}\{dialog.TextName}.{Constants.NoteExtension}";
+                if (System.IO.File.Exists(dest)) {
+                    Message.ShowError(this._window, Message.ErrId.Err002);
+                    return;
+                }
+                System.IO.File.Create(dest);
+                this.TextList.Add(new FileOperator( dest).NameWithoutExtension);
+                this.TextList = new ObservableCollection<string>(this.TextList.OrderBy(n => n));
+                base.SetProperty(nameof(TextList));
+                for (var i = 0; i < this.TextList.Count; i++) {
+                    if (this.TextList[i] == dialog.TextName) {
+                        this.CurrentIndex = i;
+                        break;
+                    }
+                }
             }
         }
 
@@ -163,7 +193,9 @@ namespace MyNotepad {
         /// -
         /// </summary>
         private void DeleteTextClick() {
-
+            var file = this.TextList[this.CurrentIndex];
+            System.IO.File.Delete($@"{this._preference.Workspace}\{file}.{Constants.NoteExtension}");
+            this.TextList.RemoveAt(this.CurrentIndex);
         }
 
         /// <summary>
@@ -177,6 +209,39 @@ namespace MyNotepad {
             this._preference.Width = this._window.Width;
             this._preference.Height = this._window.Height;
             this._preference.Save();
+        }
+
+        /// <summary>
+        /// text name double click
+        /// </summary>
+        public void TextNameDoubleClick() {
+            var textName = this.TextList[this.CurrentIndex];
+            var dialog = new TextNameEditWindow(this._window, textName);
+            if (true == dialog.ShowDialog()) {
+                var dest = $@"{this._preference.Workspace}\{dialog.TextName}.{Constants.NoteExtension}";
+                if (System.IO.File.Exists(dest)) {
+                    Message.ShowError(this._window, Message.ErrId.Err002);
+                    return;
+                }
+
+                System.IO.File.Move($@"{this._preference.Workspace}\{textName}.{Constants.NoteExtension}", dest);
+                this.TextList[this.CurrentIndex] = dialog.TextName;
+                this.TextList = new ObservableCollection<string>(this.TextList.OrderBy(n => n));
+                base.SetProperty(nameof(TextList));
+                for(var i = 0; i < this.TextList.Count; i++) {
+                    if (this.TextList[i] == dialog.TextName) {
+                        this.CurrentIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// selected text name is changed
+        /// </summary>
+        public void SelectedTextNameChanged() {
+
         }
         #endregion
     }
