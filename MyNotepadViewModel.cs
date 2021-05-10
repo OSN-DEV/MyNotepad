@@ -11,7 +11,7 @@ namespace MyNotepad {
     /// <summary>
     /// note pad view model
     /// </summary>
-    internal class MyNotepadViewModel : BaseBindable{
+    internal class MyNotepadViewModel : BaseBindable {
 
         #region Declaration
         private readonly MyNotepadWindow _window;
@@ -21,7 +21,8 @@ namespace MyNotepad {
         #region Pubic Property
         private int _currentIndex;
         public int CurrentIndex {
-            set { base.SetProperty(ref this._currentIndex, value);
+            set {
+                base.SetProperty(ref this._currentIndex, value);
                 base.SetProperty(nameof(this.IsDeleteEnabled));
             }
             get { return this._currentIndex; }
@@ -30,10 +31,10 @@ namespace MyNotepad {
         /// <summary>
         /// text
         /// </summary>
-        private string _text;
-        public string Text {
-            set { base.SetProperty(ref this._text, value); }
-            get { return this._text; }
+        private string _textData;
+        public string TextData {
+            set { base.SetProperty(ref this._textData, value); }
+            get { return this._textData; }
         }
 
         /// <summary>
@@ -108,13 +109,15 @@ namespace MyNotepad {
             if (0 < this._preference.Y) {
                 Util.SetWindowYPosition(this._window, this._preference.Y);
             }
-            this._window.Width =0 < this._preference.Width ? this._preference.Width : this._window.Width;
+            this._window.Width = 0 < this._preference.Width ? this._preference.Width : this._window.Width;
             this._window.Height = 0 < this._preference.Height ? this._preference.Height : this._window.Height;
 
             this._window.Closing += WindowClosing;
+            this._window.KeyDown += WindowKeyDown;
 
             this.ShowTextList();
         }
+
 
         /// <summary>
         /// show text list
@@ -122,7 +125,7 @@ namespace MyNotepad {
         private void ShowTextList() {
             this.TextList.Clear();
             var files = System.IO.Directory.GetFiles(this._preference.Workspace, $"*.{Constants.NoteExtension}");
-            foreach(var file in files) {
+            foreach (var file in files) {
                 this.TextList.Add(new FileOperator(file).NameWithoutExtension);
             }
         }
@@ -171,13 +174,13 @@ namespace MyNotepad {
         private void AddTextClick() {
             var dialog = new TextNameEditWindow(this._window);
             if (true == dialog.ShowDialog()) {
-                var dest = $@"{this._preference.Workspace}\{dialog.TextName}.{Constants.NoteExtension}";
+                var dest = this.GetFilePath(dialog.TextName);
                 if (System.IO.File.Exists(dest)) {
                     Message.ShowError(this._window, Message.ErrId.Err002);
                     return;
                 }
-                System.IO.File.Create(dest);
-                this.TextList.Add(new FileOperator( dest).NameWithoutExtension);
+                System.IO.File.Create(dest).Close();
+                this.TextList.Add(new FileOperator(dest).NameWithoutExtension);
                 this.TextList = new ObservableCollection<string>(this.TextList.OrderBy(n => n));
                 base.SetProperty(nameof(TextList));
                 for (var i = 0; i < this.TextList.Count; i++) {
@@ -194,8 +197,9 @@ namespace MyNotepad {
         /// </summary>
         private void DeleteTextClick() {
             var file = this.TextList[this.CurrentIndex];
-            System.IO.File.Delete($@"{this._preference.Workspace}\{file}.{Constants.NoteExtension}");
+            System.IO.File.Delete(this.GetFilePath(file));
             this.TextList.RemoveAt(this.CurrentIndex);
+            this.TextData = "";
         }
 
         /// <summary>
@@ -211,24 +215,37 @@ namespace MyNotepad {
             this._preference.Save();
         }
 
+        private void WindowKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+            if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.S) {
+            } else {
+                return;
+            }
+            e.Handled = true;
+            var file = this.TextList[this.CurrentIndex];
+            using (var op = new FileOperator(this.GetFilePath(file))) {
+                op.OpenForWrite();
+                op.Write(this.TextData);
+            }
+        }
+
         /// <summary>
         /// text name double click
         /// </summary>
-        public void TextNameDoubleClick() {
+        public void TextDoubleClick() {
             var textName = this.TextList[this.CurrentIndex];
             var dialog = new TextNameEditWindow(this._window, textName);
             if (true == dialog.ShowDialog()) {
-                var dest = $@"{this._preference.Workspace}\{dialog.TextName}.{Constants.NoteExtension}";
+                var dest = this.GetFilePath(dialog.TextName);
                 if (System.IO.File.Exists(dest)) {
                     Message.ShowError(this._window, Message.ErrId.Err002);
                     return;
                 }
 
-                System.IO.File.Move($@"{this._preference.Workspace}\{textName}.{Constants.NoteExtension}", dest);
+                System.IO.File.Move(this.GetFilePath(textName), dest);
                 this.TextList[this.CurrentIndex] = dialog.TextName;
                 this.TextList = new ObservableCollection<string>(this.TextList.OrderBy(n => n));
                 base.SetProperty(nameof(TextList));
-                for(var i = 0; i < this.TextList.Count; i++) {
+                for (var i = 0; i < this.TextList.Count; i++) {
                     if (this.TextList[i] == dialog.TextName) {
                         this.CurrentIndex = i;
                         break;
@@ -240,8 +257,24 @@ namespace MyNotepad {
         /// <summary>
         /// selected text name is changed
         /// </summary>
-        public void SelectedTextNameChanged() {
+        public void SelectedTextChanged() {
+            if (0 <= this.CurrentIndex) {
+                var file = this.TextList[this.CurrentIndex];
+                using (var op = new FileOperator(this.GetFilePath(file))) {
+                    this.TextData = op.ReadAll();
+                }
+            }
+        }
+        #endregion
 
+
+        #region Private Method
+        /// <summary>
+        /// get file name from path
+        /// </summary>
+        /// <param name="name"></param>
+        private string GetFilePath(string name) {
+            return $@"{this._preference.Workspace}\{name}.{Constants.NoteExtension}";
         }
         #endregion
     }

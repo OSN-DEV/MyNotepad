@@ -21,11 +21,11 @@ namespace MyNotepad {
 
         #region Event
         private void TextNameListMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-            this._viewModel.TextNameDoubleClick();
+            this._viewModel.TextDoubleClick();
         }
 
         private void TextNameListSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
-            this._viewModel.SelectedTextNameChanged();
+            this._viewModel.SelectedTextChanged();
         }
         #endregion
     }
