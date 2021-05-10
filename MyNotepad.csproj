@@ -72,6 +72,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="TextNameEditViewModel.cs" />
+    <Compile Include="TextNameEditWindow.xaml.cs">
+      <DependentUpon>TextNameEditWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Component\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -92,6 +96,10 @@
       <DependentUpon>MyNotepadWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TextNameEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyNotepadWindowDesignData.cs" />

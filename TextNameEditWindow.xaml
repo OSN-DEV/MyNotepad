@@ -1,0 +1,29 @@
+﻿<Window x:Class="MyNotepad.TextNameEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyNotepad"
+        mc:Ignorable="d"
+        Title="テキスト名設定" Height="150" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        FocusManager.FocusedElement="{Binding ElementName=cTextName}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MyNotepad;component/Component/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBox Text="{Binding TextName}" Height="30" Style="{StaticResource BaseTextBoxStyle}" TextChanged="TextName_TextChanged" Name="cTextName"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+            <Button Style="{StaticResource LabelButton}" Content="OK" Command="{Binding OKComand}" IsEnabled="{Binding OKEnabled}"/>
+            <Button Style="{StaticResource LabelButton}" Content="Cancel" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

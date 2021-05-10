@@ -2,6 +2,7 @@
 using MyNotepad.Component;
 using MyNotepad.Data;
 using OsnCsLib.Common;
+using OsnCsLib.File;
 using OsnCsLib.WPFComponent.Bind;
 using System.Collections.ObjectModel;
 
@@ -29,7 +30,7 @@ namespace MyNotepad {
         /// <summary>
         /// list of text
         /// </summary>
-        public ObservableCollection<string> TextList { set; get; }
+        public ObservableCollection<string> TextList { set; get; } = new ObservableCollection<string>();
         #endregion
 
         #region Command
@@ -95,13 +96,19 @@ namespace MyNotepad {
             this._window.Height = 0 < this._preference.Height ? this._preference.Height : this._window.Height;
 
             this._window.Closing += WindowClosing;
+
+            this.ShowTextList();
         }
 
         /// <summary>
         /// show text list
         /// </summary>
         private void ShowTextList() {
-
+            this.TextList.Clear();
+            var files = System.IO.Directory.GetFiles(this._preference.Workspace, $"*.{Constants.NoteExtension}");
+            foreach(var file in files) {
+                this.TextList.Add(new FileOperator(file).NameWithoutExtension);
+            }
         }
         #endregion
 
@@ -146,7 +153,10 @@ namespace MyNotepad {
         /// + 
         /// </summary>
         private void AddTextClick() {
+            var dialog = new TextNameEditWindow(this._window);
+            if (true == dialog.ShowDialog()) {
 
+            }
         }
 
         /// <summary>
