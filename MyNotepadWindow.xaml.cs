@@ -18,7 +18,6 @@ namespace MyNotepad {
         }
         #endregion
 
-
         #region Event
         private void TextNameListMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
             this._viewModel.TextDoubleClick();
@@ -26,6 +25,10 @@ namespace MyNotepad {
 
         private void TextNameListSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
             this._viewModel.SelectedTextChanged();
+        }
+
+        private void TextDataTextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            this._viewModel.TextChange();
         }
         #endregion
     }

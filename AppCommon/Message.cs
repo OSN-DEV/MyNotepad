@@ -34,6 +34,15 @@ namespace MyNotepad.AppCommon {
         private static Dictionary<InfoId, string> _infoMessages = new Dictionary<InfoId, string> {
             { InfoId.Info999, "不明な情報です" }
         };
+
+
+        public enum ConfirmId {
+            Confirm001,
+            Confirm999
+        }
+        private static Dictionary<ConfirmId, string> _confirmMessages = new Dictionary<ConfirmId, string> {
+            { ConfirmId.Confirm001, "データが変更されています。保存しますか？" }
+        };
         #endregion
 
         #region Public Method
@@ -81,6 +90,20 @@ namespace MyNotepad.AppCommon {
             } else {
                 MessageBox.Show(owner, message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+
+        /// <summary>
+        /// 情報メッセージを表示
+        /// </summary>
+        /// <param name="message">メッセージ</param>
+        /// <param name="words">代替文字列</param>
+        public static MessageBoxResult ShowConfirm(Window owner, ConfirmId id, params string[] words) {
+            string message = _confirmMessages[id];
+            for (int i = 0; i < words.Length; i++) {
+                message = message.Replace("{" + i + "}", words[i]);
+            }
+            return MessageBox.Show(owner, message, "Confirm",MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
         }
         #endregion
     }

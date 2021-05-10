@@ -34,7 +34,12 @@ namespace MyNotepad.Data {
         /// <summary>
         /// last workspace
         /// </summary>
-        public string Workspace { set; get; }
+        public string Workspace { set; get; } = "";
+
+        /// <summary>
+        /// the index of text list
+        /// </summary>
+        public int LastIndex { set; get; } = -1;
         #endregion
 
         #region Public Method

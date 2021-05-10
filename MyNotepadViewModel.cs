@@ -16,6 +16,9 @@ namespace MyNotepad {
         #region Declaration
         private readonly MyNotepadWindow _window;
         private readonly AppPreferenceRepo _preference;
+        private bool _lockChangeEvent = true;
+        private bool _isDirty = false;
+        private int _oldIndex = -1;
         #endregion
 
         #region Pubic Property
@@ -112,10 +115,12 @@ namespace MyNotepad {
             this._window.Width = 0 < this._preference.Width ? this._preference.Width : this._window.Width;
             this._window.Height = 0 < this._preference.Height ? this._preference.Height : this._window.Height;
 
+            this._window.Loaded += WindowLoaded;
             this._window.Closing += WindowClosing;
             this._window.KeyDown += WindowKeyDown;
 
             this.ShowTextList();
+            this.CurrentIndex = this._preference.LastIndex;
         }
 
 
@@ -124,6 +129,9 @@ namespace MyNotepad {
         /// </summary>
         private void ShowTextList() {
             this.TextList.Clear();
+            if (0 == this._preference.Workspace.Length) {
+                return;
+            }
             var files = System.IO.Directory.GetFiles(this._preference.Workspace, $"*.{Constants.NoteExtension}");
             foreach (var file in files) {
                 this.TextList.Add(new FileOperator(file).NameWithoutExtension);
@@ -136,13 +144,20 @@ namespace MyNotepad {
         /// [File] - [New Workspace]
         /// </summary>
         private void NewWorkspaceClick() {
+            if (!this.ConfirmChange()) {
+                return;
+            }
             var dialog = new FolderSelectDialog();
             dialog.Title = "フォルダ選択";
             dialog.Path = this._preference.Workspace;
             if (dialog.ShowDialog(this._window)) {
+                this._lockChangeEvent = true;
                 this._preference.Workspace = dialog.Path;
+                this._preference.LastIndex = -1;
                 this._preference.Save();
+                this.TextData = "";
                 this.ShowTextList();
+                this._lockChangeEvent = false;
             }
         }
 
@@ -203,15 +218,36 @@ namespace MyNotepad {
         }
 
         /// <summary>
+        /// window loaded
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void WindowLoaded(object sender, System.Windows.RoutedEventArgs e) {
+            this._lockChangeEvent = true;
+            if (0 <= this.CurrentIndex) {
+                var file = this.TextList[this.CurrentIndex];
+                using (var op = new FileOperator(this.GetFilePath(file))) {
+                    this.TextData = op.ReadAll();
+                }
+            }
+            this._lockChangeEvent = false;
+        }
+
+        /// <summary>
         /// window closing
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e) {
+            if (!this.ConfirmChange()) {
+                e.Cancel = true;
+                return;
+            }
             this._preference.X = this._window.Left;
             this._preference.Y = this._window.Top;
             this._preference.Width = this._window.Width;
             this._preference.Height = this._window.Height;
+            this._preference.LastIndex = this.CurrentIndex;
             this._preference.Save();
         }
 
@@ -221,11 +257,7 @@ namespace MyNotepad {
                 return;
             }
             e.Handled = true;
-            var file = this.TextList[this.CurrentIndex];
-            using (var op = new FileOperator(this.GetFilePath(file))) {
-                op.OpenForWrite();
-                op.Write(this.TextData);
-            }
+            this.SaveData();
         }
 
         /// <summary>
@@ -258,15 +290,38 @@ namespace MyNotepad {
         /// selected text name is changed
         /// </summary>
         public void SelectedTextChanged() {
+            if (this._lockChangeEvent) {
+                return;
+            }
+
+            if (!this.ConfirmChange()) {
+                this.CurrentIndex = this._oldIndex;
+                return;
+            }
+
+            this.SetDirty(false);
+            this._lockChangeEvent = true;
             if (0 <= this.CurrentIndex) {
                 var file = this.TextList[this.CurrentIndex];
                 using (var op = new FileOperator(this.GetFilePath(file))) {
                     this.TextData = op.ReadAll();
                 }
             }
+            this._lockChangeEvent = false;
+            this._oldIndex = this.CurrentIndex;
+        }
+
+        /// <summary>
+        /// text is changed
+        /// </summary>
+        public void TextChange() {
+            if (this._lockChangeEvent) {
+                return;
+            }
+            this.SetDirty(true);
+
         }
         #endregion
-
 
         #region Private Method
         /// <summary>
@@ -275,6 +330,50 @@ namespace MyNotepad {
         /// <param name="name"></param>
         private string GetFilePath(string name) {
             return $@"{this._preference.Workspace}\{name}.{Constants.NoteExtension}";
+        }
+
+        /// <summary>
+        /// set dirty
+        /// </summary>
+        /// <param name="isDirty"></param>
+        private void SetDirty(bool isDirty) {
+            this._isDirty = isDirty;
+            this._window.Title = "MyNotepad" + (this._isDirty ? " *" : "");
+        }
+
+        /// <summary>
+        /// confirm file change
+        /// </summary>
+        /// <returns>true: continue, false:cancel</returns>
+        private bool ConfirmChange() {
+            if (!this._isDirty) {
+                return true;
+            }
+
+            var result = Message.ShowConfirm(this._window, Message.ConfirmId.Confirm001);
+            switch (result) {
+                case System.Windows.MessageBoxResult.Yes:
+                    this.SaveData();
+                    this.SetDirty(false);
+                    return true;
+                case System.Windows.MessageBoxResult.No:
+                    this.SetDirty(false);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// save text
+        /// </summary>
+        private void SaveData() {
+            var file = this.TextList[this.CurrentIndex];
+            using (var op = new FileOperator(this.GetFilePath(file))) {
+                op.OpenForWrite();
+                op.Write(this.TextData);
+                this.SetDirty(false);
+            }
         }
         #endregion
     }

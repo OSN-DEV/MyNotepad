@@ -34,9 +34,9 @@
                 <Separator />
                 <MenuItem Header="Exit(_X)" Command="{Binding AppExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="View(_V)">
+            <!--<MenuItem Header="View(_V)">
                 <MenuItem IsCheckable="True" Header="SideBar" Command="{Binding ToggleSidebarCommand}" />
-            </MenuItem>
+            </MenuItem>-->
         </Menu>
 
         <ListView Grid.Row="1" Grid.Column="0" SelectionMode="Single" ItemsSource="{Binding TextList}" MouseDoubleClick="TextNameListMouseDoubleClick" SelectionChanged="TextNameListSelectionChanged" SelectedIndex="{Binding CurrentIndex}">
@@ -80,6 +80,6 @@
         
         <GridSplitter Grid.Column="1" Grid.Row="1" Width="5" HorizontalAlignment="Center" Grid.RowSpan="2"/>
 
-        <TextBox Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" AcceptsReturn="True" TextBlock.LineHeight="20" Text="{Binding TextData,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" AcceptsReturn="True" TextBlock.LineHeight="20" Text="{Binding TextData,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextDataTextChanged" Style="{StaticResource BaseTextBoxStyle}" IsEnabled="{Binding IsDeleteEnabled}"/>
     </Grid>
 </Window>
