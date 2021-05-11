@@ -152,6 +152,7 @@ namespace MyNotepad {
             dialog.Path = this._preference.Workspace;
             if (dialog.ShowDialog(this._window)) {
                 this._lockChangeEvent = true;
+                this._currentIndex = -1;
                 this._preference.Workspace = dialog.Path;
                 this._preference.LastIndex = -1;
                 this._preference.Save();
@@ -224,7 +225,7 @@ namespace MyNotepad {
         /// <param name="e"></param>
         private void WindowLoaded(object sender, System.Windows.RoutedEventArgs e) {
             this._lockChangeEvent = true;
-            if (0 <= this.CurrentIndex) {
+            if (0 <= this.CurrentIndex && this.CurrentIndex < this.TextList.Count) {
                 var file = this.TextList[this.CurrentIndex];
                 using (var op = new FileOperator(this.GetFilePath(file))) {
                     this.TextData = op.ReadAll();
