@@ -254,11 +254,14 @@ namespace MyNotepad {
 
         private void WindowKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
             if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.S) {
+                e.Handled = true;
+                this.SaveData();
+            } else if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.W) {
+                e.Handled = true;
+                this._window.Close();
             } else {
                 return;
             }
-            e.Handled = true;
-            this.SaveData();
         }
 
         /// <summary>
