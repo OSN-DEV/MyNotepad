@@ -144,7 +144,7 @@ namespace MyNotepad {
         /// [File] - [New Workspace]
         /// </summary>
         private void NewWorkspaceClick() {
-            if (!this.ConfirmChange()) {
+            if (!this.ConfirmChange(true)) {
                 return;
             }
             var dialog = new FolderSelectDialog();
@@ -240,7 +240,7 @@ namespace MyNotepad {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e) {
-            if (!this.ConfirmChange()) {
+            if (!this.ConfirmChange(true)) {
                 e.Cancel = true;
                 return;
             }
@@ -255,7 +255,7 @@ namespace MyNotepad {
         private void WindowKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
             if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.S) {
                 e.Handled = true;
-                this.SaveData();
+                this.SaveData(true);
             } else if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.W) {
                 e.Handled = true;
                 this._window.Close();
@@ -298,7 +298,7 @@ namespace MyNotepad {
                 return;
             }
 
-            if (!this.ConfirmChange()) {
+            if (!this.ConfirmChange(false)) {
                 this.CurrentIndex = this._oldIndex;
                 return;
             }
@@ -349,7 +349,8 @@ namespace MyNotepad {
         /// confirm file change
         /// </summary>
         /// <returns>true: continue, false:cancel</returns>
-        private bool ConfirmChange() {
+        /// <param name="userCurrentIndex">true:現在選択されているファイルを対象、false:直前に選択されていたファイルが対象</param>
+        private bool ConfirmChange(bool userCurrentIndex) {
             if (!this._isDirty) {
                 return true;
             }
@@ -357,7 +358,7 @@ namespace MyNotepad {
             var result = Message.ShowConfirm(this._window, Message.ConfirmId.Confirm001);
             switch (result) {
                 case System.Windows.MessageBoxResult.Yes:
-                    this.SaveData();
+                    this.SaveData(userCurrentIndex);
                     this.SetDirty(false);
                     return true;
                 case System.Windows.MessageBoxResult.No:
@@ -371,8 +372,10 @@ namespace MyNotepad {
         /// <summary>
         /// save text
         /// </summary>
-        private void SaveData() {
-            var file = this.TextList[this.CurrentIndex];
+        /// <param name="userCurrentIndex">true:現在選択されているファイルを対象、false:直前に選択されていたファイルが対象</param>
+        private void SaveData(bool userCurrentIndex) {
+            var index = userCurrentIndex ? this.CurrentIndex : _oldIndex;
+            var file = this.TextList[index];
             using (var op = new FileOperator(this.GetFilePath(file))) {
                 op.OpenForWrite();
                 op.Write(this.TextData);
