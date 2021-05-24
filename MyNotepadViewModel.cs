@@ -6,6 +6,7 @@ using OsnCsLib.File;
 using OsnCsLib.WPFComponent.Bind;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
 
 namespace MyNotepad {
     /// <summary>
@@ -212,10 +213,14 @@ namespace MyNotepad {
         /// -
         /// </summary>
         private void DeleteTextClick() {
+            this._lockChangeEvent = true;
             var file = this.TextList[this.CurrentIndex];
             System.IO.File.Delete(this.GetFilePath(file));
             this.TextList.RemoveAt(this.CurrentIndex);
+            this._currentIndex = -1;
             this.TextData = "";
+            this.SetDirty(false);
+            this._lockChangeEvent = false;
         }
 
         /// <summary>
@@ -253,12 +258,20 @@ namespace MyNotepad {
         }
 
         private void WindowKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-            if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.S) {
+            if (Util.IsModifierPressed(ModifierKeys.Control) && e.Key == Key.S) {
                 e.Handled = true;
                 this.SaveData(true);
-            } else if (Util.IsModifierPressed(System.Windows.Input.ModifierKeys.Control) && e.Key == System.Windows.Input.Key.W) {
+            } else if (Util.IsModifierPressed(ModifierKeys.Control) && e.Key == Key.W) {
                 e.Handled = true;
                 this._window.Close();
+            } else if (Util.IsModifierPressed(ModifierKeys.Control) && Util.IsModifierPressed(ModifierKeys.Shift) && e.Key == Key.A) {
+                e.Handled = true;
+                this.AddTextClick();
+            } else if (Util.IsModifierPressed(ModifierKeys.Control) && Util.IsModifierPressed(ModifierKeys.Shift) && e.Key == Key.D) {
+                e.Handled = true;
+                if (0 <= this._currentIndex) {
+                    this.DeleteTextClick();
+                }
             } else {
                 return;
             }
