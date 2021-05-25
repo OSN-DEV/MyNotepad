@@ -312,7 +312,9 @@ namespace MyNotepad {
             }
 
             if (!this.ConfirmChange(false)) {
+                this._lockChangeEvent = true;
                 this.CurrentIndex = this._oldIndex;
+                this._lockChangeEvent = false;
                 return;
             }
 
